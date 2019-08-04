@@ -16,11 +16,11 @@ Due to internals of the Windows operating system, the available value only updat
 
 With that said, you can get timestamps from **UtcMilliTime's Clock class**. For server side and database developers, we appreciate storing UTC (unambiguous) time in a single 64-bit integer. For machine-to-machine communication, this is a good format of timestamps. -This format is the normal output of JavaScript's `Date.now()` function. Localization (adjustment for time zone and daylight savings time) can happen on the client side along with formatting to display times to end users.
 
-Note that Unix time has a Year 2038 problem; 32-bit signed integers will overflow (wrap around) then, as Unix time increases by 86400 seconds per day. By using 64-bit integers, UtcMilliTime's Clock class avoids the Year 2038 problem.
+Note that Unix time has a Year 2038 problem; 32-bit signed integers will overflow (wrap around) then, as Unix time increases by 86400 seconds per day. By using 64-bit integers, **UtcMilliTime's Clock class** avoids the Year 2038 problem.
 
 ### Bypassing device time
 
-It may also be said that UtcMilliTime is a software defined clock. It may initialize with device time, but if connectivity and permission are present it will make its own call to an NTP (Network Time Protocol) server to synchronize itself with network time. After it retrieves network time, note that it does not adjust device time. From then onwards, it simply ignores device time.
+It may also be said that **UtcMilliTime** is a software defined clock. It may initialize with device time, but if connectivity and permission are present it will make its own call to an NTP (Network Time Protocol) server to synchronize itself with network time. After it retrieves network time, note that it does not adjust device time. From then onwards, it simply ignores device time.
 
 Device time relies on the user-changeable time settings of the local device. User settings do not always pass a sanity check and can be an attack vector; therefore, we take network time to be more accurate and reliable.
 
