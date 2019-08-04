@@ -60,7 +60,7 @@ By default, the clock initializes with device time and leaves the network alone.
 
 With that permission, and subject to connectivity, the clock will synchronize itself to network time.
 
-If your code would like to be notified when synchronization occurs, you can subscribe to an event, NetworkTimeAcquired. Here is a line of code which subscribes—
+If your code would like to be notified when synchronization occurs, you can subscribe to an event, `NetworkTimeAcquired`. Here is a line of code which subscribes—
 ```
 Time.NetworkTimeAcquired += Time_NetworkTimeAcquired;
 ```
