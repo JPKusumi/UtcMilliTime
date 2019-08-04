@@ -30,9 +30,9 @@ The software defined clock uses this definition of "now":
 ```
 device_boot_time + device_uptime
 ```
-This number goes up even during a leap second, when Unix time counting pauses for a second. After that, UtcMilliTime will appear to be one second fast, ahead of Unix time. If a leap second has happened during run time, and you don't want to restart the process or the device, your code can prompt re-synchronization by calling Time.SelfUpdateAsync(). To that method, you can optionally pass a string parameter with the host name of a particular NTP time server.
+This number goes up even during a leap second, when Unix time counting pauses for a second. After that, UtcMilliTime will appear to be one second fast, ahead of Unix time. If a leap second has happened during run time, and you don't want to restart the process or the device, your code can prompt re-synchronization by calling `Time.SelfUpdateAsync()`. To that method, you can optionally pass a string parameter with the host name of a particular NTP time server.
 
-If connectivity is absent, or the host name is misspelled, etc. (various problems can occur), the call to Time.SelfUpdateAsync() will fail silently. Check the Time.Synchronized boolean property for the outcome.
+If connectivity is absent, or the host name is misspelled, etc. (various problems can occur), the call to `Time.SelfUpdateAsync()` will fail silently. Check the `Time.Synchronized` boolean property for the outcome.
 
 ### General usage
 
