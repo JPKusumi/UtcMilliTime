@@ -9,6 +9,7 @@ Unix time * 1000 + milliseconds
 On Windows systems, you can get timestamps from **UtcMilliTime's Clock class**.
 
 ###What kind of timestamps?
+
 The stamps resemble Unix time (a whole number of seconds in the Unix epoch) with three extra digits that express milliseconds. The format expresses time as a single integer; the whole number is the raw count of the number of milliseconds elapsed during the Unix epoch - from 1/1/1970 00:00:00 to the present (albeit, ignoring leap seconds, which is the standard for Unix time). The single integer will be of type long (the C# keyword for `Int64`). As a signed integer, it permits negative numbers, which allows the expression of dates prior to 1970.
 
 Due to internals of the Windows operating system, the available value only updates at intervals of 10 - 16 ms. (Apparently, updates rely on a message pump within Windows, running at a pace of 60 - 100 frames per second.)
@@ -18,11 +19,13 @@ With that said, you can get timestamps from **UtcMilliTime's Clock class**. For 
 Note that Unix time has a Year 2038 problem; 32-bit signed integers will overflow (wrap around) then, as Unix time increases by 86400 seconds per day. By using 64-bit integers, UtcMilliTime's Clock class avoids the Year 2038 problem.
 
 ###Bypassing device time
+
 It may also be said that UtcMilliTime is a software defined clock. It may initialize with device time, but if connectivity and permission are present it will make its own call to an NTP (Network Time Protocol) server to synchronize itself with network time. After it retrieves network time, note that it does not adjust device time. From then onwards, it simply ignores device time.
 
 Device time relies on the user-changeable time settings of the local device. User settings do not always pass a sanity check and can be an attack vector; therefore, we take network time to be more accurate and reliable.
 
 ###Technical note
+
 The software defined clock uses this definition of "now":
 ```
 device_boot_time + device_uptime
@@ -32,6 +35,7 @@ This number goes up even during a leap second, when Unix time counting pauses fo
 If connectivity is absent, or the host name is misspelled, etc. (various problems can occur), the call to Time.SelfUpdateAsync() will fail silently. Check the Time.Synchronized boolean property for the outcome.
 
 ###General usage
+
 Add a reference from your project to UtcMilliTime.dll, and then in your code file, add this using statement—
 ```
 using UtcMilliTime;
