@@ -32,7 +32,7 @@ device_boot_time + device_uptime
 ```
 This number goes up even during a leap second, when Unix time counting pauses for a second. After that, UtcMilliTime will appear to be one second fast, ahead of Unix time. If a leap second has happened during run time, and you don't want to restart the process or the device, your code can prompt re-synchronization by calling `Time.SelfUpdateAsync()`. To that method, you can optionally pass a string parameter with the host name of a particular NTP time server.
 
-If connectivity is absent, or the host name is misspelled, etc. (various problems can occur), the call to `Time.SelfUpdateAsync()` will fail silently. Check the `Time.Synchronized` boolean property for the outcome.
+If connectivity is absent, or the host name is misspelled, etc. (various problems can occur), the call to `Time.SelfUpdateAsync()` will fail silently. Check the `Time.Synchronized` boolean property for the outcome, or subscribe to the event, NetworkTimeAcquired, described below.
 
 ### General usage
 
@@ -59,6 +59,8 @@ Time.SuppressNetworkCalls = false;
 By default, the clock initializes with device time and leaves the network alone. The above line of code "gives permission" for UtcMilliTime to use the network for synchronization, via Network Time Protocol (NTP) to network time. The setting is durable for the rest of runtime. (The line needs only to execute once.)
 
 With that permission, and subject to connectivity, the clock will synchronize itself to network time.
+
+### NetworkTimeAcquired event
 
 If your code would like to be notified when synchronization occurs, you can subscribe to an event, `NetworkTimeAcquired`. Here is a line of code which subscribes—
 ```
