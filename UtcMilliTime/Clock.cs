@@ -14,7 +14,7 @@
         extern static ulong GetTickCount64();
         private static long device_boot_time;
         private static bool successfully_synced;
-        private bool suppress_network_calls = true;
+        private static bool suppress_network_calls = true;
         public string DefaultServer { get; set; } = Constants.fallback_server;
         public long DeviceBootTime => device_boot_time;
         public long DeviceUpTime => (long)GetTickCount64();
@@ -30,26 +30,22 @@
                 if (value != suppress_network_calls)
                 {
                     suppress_network_calls = value;
-                    if (!successfully_synced && ThereIsConnectivity && !suppress_network_calls) SelfUpdateAsync().SafeFireAndForget(false);
+                    if (Indicated) SelfUpdateAsync().SafeFireAndForget(false);
                 }
             }
         }
         public bool Synchronized => successfully_synced;
         public event EventHandler<NTPEventArgs> NetworkTimeAcquired;
+        private static bool Indicated => !successfully_synced && ThereIsConnectivity && !suppress_network_calls;
         private static bool ThereIsConnectivity => NetworkInterface.GetIsNetworkAvailable();
         private Clock()
         {
             NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
-            if (ThereIsConnectivity)
-            {
-                SelfUpdateAsync().SafeFireAndForget(false);
-                return;
-            }
-            Initialize();
+            if (Indicated) SelfUpdateAsync().SafeFireAndForget(false); else Initialize();
         }
         private void NetworkChange_NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
         {
-            if (!successfully_synced && e.IsAvailable && !suppress_network_calls) SelfUpdateAsync().SafeFireAndForget(false);
+            if (Indicated) SelfUpdateAsync().SafeFireAndForget(false);
         }
         private void Initialize()
         {
@@ -62,7 +58,7 @@
         {
             bool prior_sync_state = successfully_synced;
             Initialize();
-            if (!Initialized || !ThereIsConnectivity || suppress_network_calls) return;
+            if (!Initialized || !Indicated) return;
             if (ntpServerHostName == Constants.fallback_server && !string.IsNullOrEmpty(DefaultServer)) ntpServerHostName = DefaultServer;
             Stopwatch latency = Stopwatch.StartNew();
             long timeNow = await Task.Run(() => GetNetworkTime(ntpServerHostName)).ConfigureAwait(false);
