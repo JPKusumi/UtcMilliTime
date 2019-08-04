@@ -64,13 +64,13 @@ If your code would like to be notified when synchronization occurs, you can subs
 ```
 Time.NetworkTimeAcquired += Time_NetworkTimeAcquired;
 ```
-Then you would actually handle the event in a method of this structure:
+Then you would actually handle the event in a method like this:
 ```
 private static void Time_NetworkTimeAcquired(object sender, NTPEventArgs e)
 {
   // The clock just synced up to network time. Place your code for the
   // occasion here. At this point, e.Skew is an interesting value. It
   // expresses the difference between device time and network time.
-  //      var networkTimestamp = oldUnsyncedTimestamp + e.Skew;
+  //      var networkTimestamp = oldDeviceTimestamp + e.Skew;
 }
 ```
