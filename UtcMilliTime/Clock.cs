@@ -36,8 +36,7 @@
         }
         public bool Synchronized => successfully_synced;
         public event EventHandler<NTPEventArgs> NetworkTimeAcquired;
-        private static bool Indicated => !successfully_synced && ThereIsConnectivity && !suppress_network_calls;
-        private static bool ThereIsConnectivity => NetworkInterface.GetIsNetworkAvailable();
+        private static bool Indicated => !suppress_network_calls && !successfully_synced && NetworkInterface.GetIsNetworkAvailable();
         private Clock()
         {
             NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
@@ -53,7 +52,7 @@
             successfully_synced = false;
             Skew = 0;
         }
-        private static long GetDeviceTime() => (DateTime.UtcNow.Ticks / 10000) - Constants.dotnet_to_unix_milliseconds;
+        private static long GetDeviceTime() => (DateTime.UtcNow.Ticks / Constants.dotnet_ticks_per_millisecond) - Constants.dotnet_to_unix_milliseconds;
         public async Task SelfUpdateAsync(string ntpServerHostName = Constants.fallback_server)
         {
             bool prior_sync_state = successfully_synced;
@@ -81,11 +80,11 @@
             try
             {
                 var addresses = Dns.GetHostEntry(forNtpServer).AddressList;
-                var ipEndPoint = new IPEndPoint(addresses[0], 123);
+                var ipEndPoint = new IPEndPoint(addresses[0], Constants.udp_port_number);
                 using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                 {
                     socket.Connect(ipEndPoint);
-                    socket.ReceiveTimeout = 3000;
+                    socket.ReceiveTimeout = Constants.three_seconds;
                     Stopwatch timer = Stopwatch.StartNew();
                     socket.Send(ntpData);
                     socket.Receive(ntpData);
