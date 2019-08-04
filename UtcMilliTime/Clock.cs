@@ -24,10 +24,7 @@
         public long Skew { get; private set; }
         public bool SuppressNetworkCalls
         {
-            get
-            {
-                return suppress_network_calls;
-            }
+            get => suppress_network_calls;
             set
             {
                 if (value != suppress_network_calls)
