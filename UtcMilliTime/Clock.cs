@@ -52,7 +52,7 @@
             successfully_synced = false;
             Skew = 0;
         }
-        private static long GetDeviceTime() => (DateTime.UtcNow.Ticks / Constants.dotnet_ticks_per_millisecond) - Constants.dotnet_to_unix_milliseconds;
+        private static long GetDeviceTime() => DateTime.UtcNow.Ticks / Constants.dotnet_ticks_per_millisecond - Constants.dotnet_to_unix_milliseconds;
         public async Task SelfUpdateAsync(string ntpServerHostName = Constants.fallback_server)
         {
             bool prior_sync_state = successfully_synced;
