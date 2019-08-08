@@ -11,7 +11,7 @@
             // ********************     // Crib this line-
             ITime Time = Clock.Time;
             // ********************     // Local variable 'Time' now has singleton instance reference
-            Console.WriteLine("An instance of the UtcMilliTime clock has been instanciated.");
+            Console.WriteLine("The instance of the UtcMilliTime clock has been instanciated.");
             Console.WriteLine();
             Console.WriteLine($"At this point, initialized = {Time.Initialized} (should be true), but synchronized = {Time.Synchronized} (should be false). ");
             Console.WriteLine($" Meaning, the clock has the device local time, but not network time.");

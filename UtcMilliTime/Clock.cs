@@ -66,7 +66,7 @@
             Skew = timeNow - GetDeviceTime();
             device_boot_time = timeNow - (long)GetTickCount64();
             successfully_synced = true;
-            if (!prior_sync_state)
+            if (!prior_sync_state && NetworkTimeAcquired != null)
             {
                 NTPEventArgs args = new NTPEventArgs(ntpServerHostName, latency.ElapsedMilliseconds, Skew);
                 NetworkTimeAcquired?.Invoke(this, args);
