@@ -69,7 +69,7 @@
             if (!prior_sync_state && NetworkTimeAcquired != null)
             {
                 NTPEventArgs args = new NTPEventArgs(ntpServerHostName, latency.ElapsedMilliseconds, Skew);
-                NetworkTimeAcquired?.Invoke(this, args);
+                NetworkTimeAcquired.Invoke(this, args);
             }
         }
         private static long GetNetworkTime(string forNtpServer)

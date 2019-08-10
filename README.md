@@ -76,3 +76,14 @@ private static void Time_NetworkTimeAcquired(object sender, NTPEventArgs e)
   //      var networkTimestamp = oldDeviceTimestamp + e.Skew;
 }
 ```
+
+### FAQ. Can I get timestamps in an ISO-8601 compliant string format?
+
+Yes, you can. There is an extension method, `.ToIso8601String()`.
+
+By default, this extension method yields seconds, followed by a decimal point, followed by three digits to express milliseconds.
+
+If you want ISO-8601 in whole seconds (milliseconds truncated), send true as a parameter to the extension method: `.ToIso8601String(true)`
+```
+String result = Time.Now.ToIso8601String();
+```

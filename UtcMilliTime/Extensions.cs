@@ -3,6 +3,17 @@
     using System;
     public static class Extensions
     {
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="timestamp"></param>
+        /// <returns></returns>
+        public static string ToIso8601String(this long timestamp, bool suppressMilliseconds = false)
+        {
+            if (suppressMilliseconds) return timestamp.ToUtcDateTime().ToString(Constants.iso_8601_without_milliseconds);
+            return timestamp.ToUtcDateTime().ToString(Constants.iso_8601_with_milliseconds);
+        }
         /// <summary>
         /// Transform a DateTime to UtcMilliTime. Fractional milliseconds are truncated
         /// </summary>

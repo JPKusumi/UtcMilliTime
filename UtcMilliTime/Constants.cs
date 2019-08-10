@@ -12,5 +12,7 @@
         public const long ntp_to_unix_milliseconds = 2208988800000;
         public const long dotnet_to_unix_milliseconds = 62135596800000;
         public const string fallback_server = "time.google.com";
+        public const string iso_8601_without_milliseconds = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'";
+        public const string iso_8601_with_milliseconds = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'";
     }
 }
