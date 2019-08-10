@@ -5,10 +5,11 @@
     {
 
         /// <summary>
-        /// 
+        /// Transform a UtcMilliTime Int64 to a string in ISO-8601 format.
         /// </summary>
-        /// <param name="timestamp"></param>
-        /// <returns></returns>
+        /// <param name="timestamp">UtcMilliTime</param>
+        /// <param name="suppressMilliseconds">boolean</param>
+        /// <returns>string like 2019-08-10T22:08:14.102Z</returns>
         public static string ToIso8601String(this long timestamp, bool suppressMilliseconds = false)
         {
             if (suppressMilliseconds) return timestamp.ToUtcDateTime().ToString(Constants.iso_8601_without_milliseconds);
