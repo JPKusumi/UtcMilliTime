@@ -84,13 +84,13 @@
                 using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                 {
                     socket.Connect(ipEndPoint);
+                    if (socket == null) return 0;
                     socket.ReceiveTimeout = Constants.three_seconds;
                     Stopwatch timer = Stopwatch.StartNew();
                     socket.Send(ntpData);
                     socket.Receive(ntpData);
                     timer.Stop();
                     halfRoundTrip = timer.ElapsedMilliseconds / 2;
-                    socket.Close();
                 }
             }
             catch (Exception)
@@ -102,7 +102,7 @@
             ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
             intPart = SwapEndianness(intPart);
             fractPart = SwapEndianness(fractPart);
-            var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+            var milliseconds = intPart * 1000 + fractPart * 1000 / 0x100000000L;
             return (long)milliseconds - Constants.ntp_to_unix_milliseconds + halfRoundTrip;
         }
         private static uint SwapEndianness(ulong x) => (uint)(((x & 0x000000ff) << 24) +

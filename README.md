@@ -87,4 +87,4 @@ If you want ISO-8601 in whole seconds (milliseconds truncated), send `true` as a
 ```
 String result = Time.Now.ToIso8601String();
 ```
-Note that conversion to an ISO-8601 string involves allocating and instanciating a DateTime object. Due to the added steps, performance will be worse when the extension method is used, as compared to when it is not used. For maximum performance / scalability, your app should use Int64 timestamps rather than ISO strings.
+Note that conversion to an ISO-8601 string involves initializing and exercising a DateTime. Due to the added steps, performance will be worse when the extension method is used, as compared to when it is not used. For maximum performance and scalability, your app should use Int64 timestamps rather than ISO strings.

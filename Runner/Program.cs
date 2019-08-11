@@ -39,12 +39,14 @@
             var skew = Time.Skew;                   // long integer
             Console.WriteLine($"Q. What time is it? A. {timestamp}  Unix time (seconds): {timestamp.ToUnixTime()}  Milliseconds: {timestamp.MillisecondPart()}");
             Console.WriteLine();
+            Console.WriteLine($"Q. What is that in ISO-8601 format? A. {timestamp.ToIso8601String()}");
+            Console.WriteLine();
+            Console.WriteLine($"Q. ...without milliseconds? A. {timestamp.ToIso8601String(true)}");
+            Console.WriteLine();
             // Conversion to .NET's DateTime type, two examples:
             Console.WriteLine($"Q. What is that in human readable form? A. {timestamp.ToUtcDateTime()} in UTC time zone +{timestamp.MillisecondPart()}ms");
             Console.WriteLine();
             Console.WriteLine($"Q. ...in local time? A. Adjusted to your local settings, it's {timestamp.ToLocalDateTime()} +{timestamp.MillisecondPart()}ms");
-            Console.WriteLine();
-            Console.WriteLine($"Q. Show UTC time in ISO-8601 format? A. {timestamp.ToIso8601String()} ...Q....without milliseconds? A. {timestamp.ToIso8601String(true)}");
             Console.WriteLine();
             Console.WriteLine($"Q. What is the source of that time? A. {(networkTime ? "Network time from " + theServer : "Device time from the local system's .NET/Microsoft components")}");
             Console.WriteLine();
