@@ -17,22 +17,14 @@
         private static long device_boot_time;
         private static bool successfully_synced;
         private static bool suppress_network_calls = true;
-        private static bool reentrant;
-        private static bool prior_sync_state;
-        private static Stopwatch latency;
-        private static Stopwatch timer;
-        private static long halfRoundTrip;
-        private static byte[] ntpBuffer = new byte[48];
-        private static long retrievedTime;
-        private static long _skew;
-        private static string server_resolved;
+        private static NTPCallState ntpCall;
         public string DefaultServer { get; set; } = Constants.fallback_server;
         public long DeviceBootTime => device_boot_time;
         public long DeviceUpTime => device_uptime;
         public long DeviceUtcNow => GetDeviceTime();
         public bool Initialized => device_boot_time != 0;
         public long Now => device_boot_time + device_uptime;
-        public long Skew { get => _skew; }
+        public long Skew { get; private set; }
         public bool SuppressNetworkCalls
         {
             get => suppress_network_calls;
@@ -61,111 +53,131 @@
         {
             device_boot_time = GetDeviceTime() - device_uptime;
             successfully_synced = false;
-            _skew = 0;
+            Skew = 0;
         }
         private static long GetDeviceTime() => DateTime.UtcNow.Ticks / Constants.dotnet_ticks_per_millisecond - Constants.dotnet_to_unix_milliseconds;
         public async Task SelfUpdateAsync(string ntpServerHostName = Constants.fallback_server)
         {
-            if (reentrant) return; else reentrant = true;
-            prior_sync_state = successfully_synced;
-            Initialize();
-            if (!Initialized || !Indicated) 
+            if (ntpCall != null) return;
+            ntpCall = new NTPCallState
             {
-                reentrant = false;
+                priorSyncState = successfully_synced
+            };
+            Initialize();
+            if (!Initialized || !Indicated)
+            {
+                ntpCall = null;
                 return;
             }
             if (ntpServerHostName == Constants.fallback_server && !string.IsNullOrEmpty(DefaultServer)) ntpServerHostName = DefaultServer;
-            server_resolved = ntpServerHostName;
-            latency = Stopwatch.StartNew();
-            ntpBuffer.Initialize();
-            ntpBuffer[0] = 0x1B;
-            halfRoundTrip = 0;
-            retrievedTime = 0;
-            var NTPsocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            ntpCall.serverResolved = ntpServerHostName;
+            var ntpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             try
             {
                 var ipEndPoint = new IPEndPoint(Dns.GetHostAddresses(ntpServerHostName)[0], Constants.udp_port_number);
-                NTPsocket.BeginConnect(ipEndPoint, new AsyncCallback(ConnectCallback), NTPsocket);
+                ntpSocket.BeginConnect(ipEndPoint, new AsyncCallback(Chapter2), ntpSocket);
+                ntpCall.methodsCompleted += 1;
             }
             catch (Exception)
             {
-                NTPsocket.Shutdown(SocketShutdown.Both);
-                NTPsocket.Close();
-                latency.Stop();
-                reentrant = false;
+                ntpSocket.Shutdown(SocketShutdown.Both);
+                ntpSocket.Close();
+                ntpCall.latency.Stop();
+                ntpCall = null;
                 return;
             }
         }
-        private static void ConnectCallback(IAsyncResult ar)
+        private static void Chapter2(IAsyncResult ar)
         {
-            var theSocket = (Socket)ar.AsyncState;
-            theSocket.EndConnect(ar);
-            theSocket.ReceiveTimeout = Constants.three_seconds;
-            timer = Stopwatch.StartNew();
+            var ntpSocket = (Socket)ar.AsyncState;
+            ntpSocket.EndConnect(ar);
+            ntpSocket.ReceiveTimeout = Constants.three_seconds;
             try
             {
-                theSocket.BeginSend(ntpBuffer, 0, 48, 0, new AsyncCallback(SendCallback), theSocket);
+                if (ntpCall == null)
+                {
+                    ntpSocket.Shutdown(SocketShutdown.Both);
+                    ntpSocket.Close();
+                    return;
+                }
+                ntpCall.timer = Stopwatch.StartNew();
+                ntpSocket.BeginSend(ntpCall.buffer, 0, 48, 0, new AsyncCallback(Chapter3), ntpSocket);
+                ntpCall.methodsCompleted += 1;
             }
             catch (Exception)
             {
-                timer.Stop();
-                theSocket.Shutdown(SocketShutdown.Both);
-                theSocket.Close();
-                latency.Stop();
-                reentrant = false;
+                ntpCall.timer.Stop();
+                ntpSocket.Shutdown(SocketShutdown.Both);
+                ntpSocket.Close();
+                ntpCall.latency.Stop();
+                ntpCall = null;
                 return;
             }
         }
-        private static void SendCallback(IAsyncResult ar)
+        private static void Chapter3(IAsyncResult ar)
         {
-            var theSocket = (Socket)ar.AsyncState;
-            theSocket.EndSend(ar);
+            var ntpSocket = (Socket)ar.AsyncState;
+            ntpSocket.EndSend(ar);
             try
             {
-                theSocket.BeginReceive(ntpBuffer, 0, 48, 0, new AsyncCallback(ReceiveCallback), theSocket);
+                if (ntpCall == null)
+                {
+                    ntpSocket.Shutdown(SocketShutdown.Both);
+                    ntpSocket.Close();
+                    return;
+                }
+                ntpSocket.BeginReceive(ntpCall.buffer, 0, 48, 0, new AsyncCallback(Chapter4), ntpSocket);
+                ntpCall.methodsCompleted += 1;
             }
             catch (Exception)
             {
-                timer.Stop();
-                theSocket.Shutdown(SocketShutdown.Both);
-                theSocket.Close();
-                latency.Stop();
-                reentrant = false;
+                ntpCall.timer.Stop();
+                ntpSocket.Shutdown(SocketShutdown.Both);
+                ntpSocket.Close();
+                ntpCall.latency.Stop();
+                ntpCall = null;
                 return;
             }
         }
-        private static void ReceiveCallback(IAsyncResult ar)
+        private static void Chapter4(IAsyncResult ar)
         {
-            var theSocket = (Socket)ar.AsyncState;
-            theSocket.EndReceive(ar);
-            timer.Stop();
-            halfRoundTrip = timer.ElapsedMilliseconds / 2;
+            var ntpSocket = (Socket)ar.AsyncState;
+            ntpSocket.EndReceive(ar);
+            if (ntpCall == null)
+            {
+                ntpSocket.Shutdown(SocketShutdown.Both);
+                ntpSocket.Close();
+                return;
+            }
+            ntpCall.timer.Stop();
+            long halfRoundTrip = ntpCall.timer.ElapsedMilliseconds / 2;
             const byte serverReplyTime = 40;
-            ulong intPart = BitConverter.ToUInt32(ntpBuffer, serverReplyTime);
-            ulong fractPart = BitConverter.ToUInt32(ntpBuffer, serverReplyTime + 4);
+            ulong intPart = BitConverter.ToUInt32(ntpCall.buffer, serverReplyTime);
+            ulong fractPart = BitConverter.ToUInt32(ntpCall.buffer, serverReplyTime + 4);
             intPart = SwapEndianness(intPart);
             fractPart = SwapEndianness(fractPart);
             var milliseconds = intPart * 1000 + fractPart * 1000 / 0x100000000L;
-            retrievedTime = (long)milliseconds - Constants.ntp_to_unix_milliseconds + halfRoundTrip;
-            latency.Stop();
-            if (milliseconds == 0) 
+            long timeNow = (long)milliseconds - Constants.ntp_to_unix_milliseconds + halfRoundTrip;
+            if (timeNow <= 0) 
             {
-                theSocket.Shutdown(SocketShutdown.Both);
-                theSocket.Close();
-                reentrant = false;
+                ntpSocket.Shutdown(SocketShutdown.Both);
+                ntpSocket.Close();
+                ntpCall = null;
                 return;
             }
-            _skew = retrievedTime - GetDeviceTime();
-            device_boot_time = retrievedTime - device_uptime;
-            successfully_synced = true;
-            if (!prior_sync_state && instance.Value.NetworkTimeAcquired != null)
+            instance.Value.Skew = timeNow - GetDeviceTime();
+            device_boot_time = timeNow - device_uptime;
+            ntpCall.methodsCompleted += 1;
+            successfully_synced = ntpCall.methodsCompleted == 4;
+            ntpCall.latency.Stop();
+            if (successfully_synced && !ntpCall.priorSyncState && instance.Value.NetworkTimeAcquired != null)
             {
-                NTPEventArgs args = new NTPEventArgs(server_resolved, latency.ElapsedMilliseconds, _skew);
+                NTPEventArgs args = new NTPEventArgs(ntpCall.serverResolved, ntpCall.latency.ElapsedMilliseconds, instance.Value.Skew);
                 instance.Value.NetworkTimeAcquired.Invoke(new object(), args);
             }
-            theSocket.Shutdown(SocketShutdown.Both);
-            theSocket.Close();
-            reentrant = false;
+            ntpSocket.Shutdown(SocketShutdown.Both);
+            ntpSocket.Close();
+            ntpCall = null;
         }
         private static uint SwapEndianness(ulong x) => (uint)(((x & 0x000000ff) << 24) +
             ((x & 0x0000ff00) << 8) +
