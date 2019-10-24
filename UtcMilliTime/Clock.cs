@@ -127,14 +127,9 @@
                 fractPart = SwapEndianness(fractPart);
                 var milliseconds = intPart * 1000 + fractPart * 1000 / 0x100000000L;
                 long timeNow = (long)milliseconds - Constants.ntp_to_unix_milliseconds + halfRoundTrip;
-                if (timeNow <= 0)
-                {
-                    ntpCall?.OrderlyShutdown();
-                    ntpCall = null;
-                    return;
-                }
-                instance.Value.Skew = timeNow - GetDeviceTime();
+                if (timeNow <= 0) return;
                 device_boot_time = timeNow - device_uptime;
+                instance.Value.Skew = timeNow - GetDeviceTime();
                 ntpCall.methodsCompleted += 1;
                 successfully_synced = ntpCall.methodsCompleted == 4;
                 ntpCall.latency.Stop();
@@ -143,10 +138,9 @@
                     NTPEventArgs args = new NTPEventArgs(ntpCall.serverResolved, ntpCall.latency.ElapsedMilliseconds, instance.Value.Skew);
                     instance.Value.NetworkTimeAcquired.Invoke(new object(), args);
                 }
-                ntpCall?.OrderlyShutdown();
-                ntpCall = null;
             }
-            catch (Exception)
+            catch (Exception) { } // blank intentionally; documentation says "fail silently. Check the Time.Synchronized boolean property for the outcome."
+            finally
             {
                 ntpCall?.OrderlyShutdown();
                 ntpCall = null;
