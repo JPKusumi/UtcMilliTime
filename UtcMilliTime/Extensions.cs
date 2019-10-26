@@ -20,7 +20,7 @@
         /// </summary>
         /// <param name="given">DateTime</param>
         /// <returns>long</returns>
-        public static long ToUtcMilliTime(this DateTime given) => (given.ToUniversalTime().Ticks / 10000) - Constants.dotnet_to_unix_milliseconds;
+        public static long ToUtcMilliTime(this DateTime given) => (given.ToUniversalTime().Ticks / Constants.dotnet_ticks_per_millisecond) - Constants.dotnet_to_unix_milliseconds;
         /// <summary>
         /// Transform a DateTimeOffset to UtcMilliTime. Fractional milliseconds are truncated
         /// </summary>
@@ -98,7 +98,7 @@
         /// </summary>
         /// <param name="interval">UtcMilliTime</param>
         /// <returns>TimeSpan</returns>
-        public static TimeSpan ToTimeSpan(this long interval) => new TimeSpan(interval * 10000);
+        public static TimeSpan ToTimeSpan(this long interval) => new TimeSpan(interval * Constants.dotnet_ticks_per_millisecond);
         /// <summary>
         /// Extension to fire and forget an asynchronous task
         /// </summary>

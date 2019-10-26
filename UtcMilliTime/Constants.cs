@@ -2,9 +2,10 @@
 {
     public static class Constants
     {
-        public const short three_seconds = 3000;
+        public const short bytes_per_buffer = 48;
         public const short udp_port_number = 123;
         public const short second_milliseconds = 1000;
+        public const short three_seconds = 3000;
         public const short dotnet_ticks_per_millisecond = 10000;
         public const int minute_milliseconds = 60000;
         public const int hour_milliseconds = 3600000;

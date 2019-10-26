@@ -67,14 +67,15 @@
                 Initialize();
                 if (!Initialized || !Indicated)
                 {
-                    ntpCall?.OrderlyShutdown();
+                    ntpCall.OrderlyShutdown();
                     ntpCall = null;
                     return;
                 }
                 if (ntpServerHostName == Constants.fallback_server && !string.IsNullOrEmpty(DefaultServer)) ntpServerHostName = DefaultServer;
                 ntpCall.serverResolved = ntpServerHostName;
-                var ipEndPoint = new IPEndPoint(Dns.GetHostAddresses(ntpServerHostName)[0], Constants.udp_port_number);
-                ntpCall.socket.BeginConnect(ipEndPoint, new AsyncCallback(PartB), new object());
+                var addresses = await Dns.GetHostAddressesAsync(ntpServerHostName);
+                var ipEndPoint = new IPEndPoint(addresses[0], Constants.udp_port_number);
+                ntpCall.socket.BeginConnect(ipEndPoint, new AsyncCallback(PartB), null);
                 ntpCall.methodsCompleted += 1;
             }
             catch (Exception)
@@ -90,7 +91,7 @@
                 ntpCall.socket.EndConnect(ar);
                 ntpCall.socket.ReceiveTimeout = Constants.three_seconds;
                 ntpCall.timer = Stopwatch.StartNew();
-                ntpCall.socket.BeginSend(ntpCall.buffer, 0, 48, 0, new AsyncCallback(PartC), new object());
+                ntpCall.socket.BeginSend(ntpCall.buffer, 0, Constants.bytes_per_buffer, 0, new AsyncCallback(PartC), null);
                 ntpCall.methodsCompleted += 1;
             }
             catch (Exception)
@@ -104,7 +105,7 @@
             try
             {
                 ntpCall.socket.EndSend(ar);
-                ntpCall.socket.BeginReceive(ntpCall.buffer, 0, 48, 0, new AsyncCallback(PartD), new object());
+                ntpCall.socket.BeginReceive(ntpCall.buffer, 0, Constants.bytes_per_buffer, 0, new AsyncCallback(PartD), null);
                 ntpCall.methodsCompleted += 1;
             }
             catch (Exception)

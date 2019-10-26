@@ -6,7 +6,7 @@
     public class NTPCallState
     {
         public bool priorSyncState;
-        public byte[] buffer = new byte[48];
+        public byte[] buffer = new byte[Constants.bytes_per_buffer];
         public short methodsCompleted;
         public Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         public Stopwatch latency;
