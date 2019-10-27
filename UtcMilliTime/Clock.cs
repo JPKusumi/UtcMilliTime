@@ -80,7 +80,7 @@
             }
             catch (Exception)
             {
-                ntpCall?.OrderlyShutdown();
+                ntpCall.OrderlyShutdown();
                 ntpCall = null;
             }
         }
