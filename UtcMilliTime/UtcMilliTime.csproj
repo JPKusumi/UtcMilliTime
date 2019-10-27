@@ -2,6 +2,49 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>John Kusumi</Authors>
+    <Company>JPKusumi</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/JPKusumi/UtcMilliTime</PackageProjectUrl>
+    <Description>Improve .NET to Unix time compatibility. UtcMilliTime is for Windows devs to get timestamps in the Unix Time Milliseconds format, from a software defined clock that syncs with NTP (network) time.
 
+In JavaScript, there is the Date.now() function. It yields Unix time * 1000 + milliseconds, or 'UtcMilliTime' for short. That format of timestamp is our goal. As it is UTC time - not localized - it is unambiguous (not subject to adjustment for time zone or daylight saving time). As it is a whole number of milliseconds (integer), intervals (when expressed in milliseconds) can be added or subtracted to easily find the time immediately before or after the interval.
+
+In .NET, the simple standard above becomes complicated. In common .NET projects, developers may feel it necessary to use .NET's DateTime, which counts ticks of a different precision in a different Epoch. It has been awkward to convert between these two formats as mentioned.
+
+Now UtcMilliTime - an open source package on GitHub - brings the Time.Now idiom to .NET code running on Windows. It is open source, MIT licensed, and maintained by J.P. Kusumi (at https://github.com/JPKusumi/UtcMilliTime).
+
+Using UtcMilliTime, you can say var timestamp = Time.Now; and, it's a whole integer of the same scale and format as Date.now() in JavaScript. This component is not just a converter. It is a software defined clock that can reach out to an NTP (Network Time Protocol) server to synchronize itself with network time. It uses the Windows kernel, so this solution is only for running on Windows.</Description>
+    <Copyright>2019</Copyright>
+    <Product>UtcMilliTime for WinDevs by JPKusumi</Product>
+    <PackageTags>JPKusumi UtcMilliTime UnixTimeMilliseconds Windows DLL Timestamps</PackageTags>
+    <PackageReleaseNotes>For a source of timestamps, you can use UtcMilliTime.dll, a less-than-20KB library. Install the NuGet package or otherwise set a reference to the dll. Add
+
+using UtcMilliTime;
+
+to the top of the code file where you will use it. At class level or early in your code, say-
+
+ITime Time = Clock.Time;
+
+or you may prefer to use dependency injection which would allow you to mock the ITime interface. Then, in the normal course of your code, you can say:
+
+var timestamp = Time.Now;
+
+That will get you an Int64 (long) timestamp value expressing the whole number of milliseconds that have elapsed in the Unix Epoch since 1/1/1970 00:00:00, excluding leap seconds. Also, just once at the beginning of run time, you should use this line-
+
+Time.SuppressNetworkCalls = false;
+
+By default, the component would pass along device time - the time set on the local device by Windows and perhaps the user. The line above gives the clock permission to use the network, for synchronization with an NTP (Network Time Protocol) server. The clock then updates itself (asynchronously) to network time, and it leaves device time alone. Device time will be ignored for the rest of run time.
+
+(However, if permission is not given as above, then the clock yields device time, and network time will be ignored.)
+
+For more info, see the ReadMe at https://github.com/JPKusumi/UtcMilliTime</PackageReleaseNotes>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="ReadMe.txt">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </Content>
+  </ItemGroup>
 </Project>
