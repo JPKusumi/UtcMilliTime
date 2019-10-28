@@ -50,7 +50,7 @@
         /// </summary>
         /// <param name="interval">UtcMilliTime</param>
         /// <returns>int</returns>
-        public static int IntervalDays(this long interval) => (int)interval / Constants.day_milliseconds;
+        public static int IntervalDays(this long interval) => (int)(interval / Constants.day_milliseconds);
         /// <summary>
         /// Whole hours in the remainder after days are removed from an interval
         /// </summary>

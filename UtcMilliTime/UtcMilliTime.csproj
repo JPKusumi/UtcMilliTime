@@ -18,7 +18,7 @@ Now UtcMilliTime - an open source package on GitHub - brings the Time.Now idiom 
 Using UtcMilliTime, you can say var timestamp = Time.Now; and, it's a whole integer of the same scale and format as Date.now() in JavaScript. This component is not just a converter. It is a software defined clock that can reach out to an NTP (Network Time Protocol) server to synchronize itself with network time. It uses the Windows kernel, so this solution is only for running on Windows.</Description>
     <Copyright>2019</Copyright>
     <Product>UtcMilliTime for WinDevs by JPKusumi</Product>
-    <PackageTags>JPKusumi UtcMilliTime UnixTimeMilliseconds Windows DLL Timestamps</PackageTags>
+    <PackageTags>time timestamp csharp c-sharp clock ntp ntp-client unix-timestamp milliseconds windows date datetime timezone calendar unix-epoch timestamps ntpclient-library utcmillitime unixtimemilliseconds</PackageTags>
     <PackageReleaseNotes>For a source of timestamps, you can use UtcMilliTime.dll, a less-than-20KB library. Install the NuGet package or otherwise set a reference to the dll. Add
 
 using UtcMilliTime;
