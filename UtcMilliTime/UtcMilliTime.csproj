@@ -40,6 +40,7 @@ By default, the component would pass along device time - the time set on the loc
 (However, if permission is not given as above, then the clock yields device time, and network time will be ignored.)
 
 For more info, see the ReadMe at https://github.com/JPKusumi/UtcMilliTime</PackageReleaseNotes>
+    <Version>1.0.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="ReadMe.txt">
