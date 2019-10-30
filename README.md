@@ -1,6 +1,8 @@
 # UtcMilliTime takes Windows.ToUnixTimeMilliseconds()
 UtcMilliTime is a C# time component (software defined clock) for Windows that yields UnixTimeMilliseconds Int64 timestamps. .NET developers can use Time.Now just as JavaScript devs use Date.now(). Synchronizes with NTP (Network Time Protocol). Mock friendly.
 
+On NuGet at: https://www.nuget.org/packages/UtcMilliTime/
+
 ## UtcMilliTime
 **A C# clock class** that returns `Int64` timestamps of format—
 ```
@@ -36,7 +38,7 @@ If connectivity is absent, or the host name is misspelled, etc. (various problem
 
 ### General usage
 
-Add a reference from your project to UtcMilliTime.dll, and then in your code file, add this using statement—
+Install the NuGet package (from https://www.nuget.org/packages/UtcMilliTime/) or add a reference from your project to UtcMilliTime.dll; then, in your code file, add this using statement—
 ```
 using UtcMilliTime;
 ```
